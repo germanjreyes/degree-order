@@ -1,70 +1,60 @@
-# Getting Started with Create React App
+# Commuting Times Explorer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+This interactive tool visualizes average commuting times for different occupations and college majors. It provides students and professionals with data to help them consider the practical implications of career choices on daily life and work-life balance.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- Toggle between Occupations and College Majors views
+- Filter college majors by field of study (Engineering, Natural Science, Social Science, Humanities, Languages)
+- Filter occupations by sector/industry (Healthcare, Technology, Business & Finance, Education, Creative & Media, Service, Manufacturing & Construction, Government & Public Service)
+- Compare up to 3 occupations/majors side-by-side in a dedicated comparison view
+- Detailed analysis for each occupation or major, including:
+    - Visualization of average commute times
+    - Commute analysis and implications
+    - For majors: related occupations and their commute times
+- Search functionality to quickly locate specific majors or occupations
+- Sort options (alphabetical, commute duration)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Technical Details
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The tool is built with React and uses:
+- React hooks for state management
+- Dynamic CSS-in-JS styling for responsive design
+- Conditional rendering based on selected view modes
+- Interactive data visualization with color-coded indicators
+- Filtering capabilities by sector and field of study
 
-### `npm test`
+## Data Sources
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Currently, the tool uses simulated data based.
 
-### `npm run build`
+## Usage
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This tool is designed for:
+- Students evaluating career paths and considering geographic implications
+- Career counselors helping clients understand practical aspects of job choices
+- Workforce development professionals planning training programs
+- Urban planners studying commuting patterns by profession
+- Employers considering office locations and remote work policies
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Installation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/commuting-times-explorer.git
 
-### `npm run eject`
+# Navigate to project directory
+cd commuting-times-explorer
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Install dependencies
+npm install
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Run the development server
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Contributing
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Contributions are welcome! Please feel free to submit a Pull Request.
