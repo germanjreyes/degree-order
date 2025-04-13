@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
-// Mock data – in the future this will be replaced with imported CSV data
+// Mock data - in the future this will be replaced with imported CSV data
 const mockData = {
   occupations: [
-    { name: "Software Developer", averageCommute: 30 },
-    { name: "Registered Nurse", averageCommute: 25 },
-    { name: "Financial Analyst", averageCommute: 35 },
-    { name: "Graphic Designer", averageCommute: 40 },
-    { name: "Elementary Teacher", averageCommute: 20 },
-    { name: "Marketing Manager", averageCommute: 30 },
-    { name: "Civil Engineer", averageCommute: 40 },
-    { name: "HR Specialist", averageCommute: 25 },
-    { name: "Accountant", averageCommute: 35 },
-    { name: "Chef", averageCommute: 20 }
+    { name: "Software Developer", alphabeticalRank: 85, commonalityRank: 76 },
+    { name: "Registered Nurse", alphabeticalRank: 72, commonalityRank: 92 },
+    { name: "Financial Analyst", alphabeticalRank: 30, commonalityRank: 65 },
+    { name: "Graphic Designer", alphabeticalRank: 40, commonalityRank: 58 },
+    { name: "Elementary Teacher", alphabeticalRank: 25, commonalityRank: 88 },
+    { name: "Marketing Manager", alphabeticalRank: 60, commonalityRank: 70 },
+    { name: "Civil Engineer", alphabeticalRank: 15, commonalityRank: 62 },
+    { name: "HR Specialist", alphabeticalRank: 45, commonalityRank: 67 },
+    { name: "Accountant", alphabeticalRank: 5, commonalityRank: 85 },
+    { name: "Chef", alphabeticalRank: 12, commonalityRank: 55 }
   ],
   majors: [
-    { name: "Computer Science", averageCommute: 30 },
-    { name: "Nursing", averageCommute: 25 },
-    { name: "Finance", averageCommute: 35 },
-    { name: "Graphic Design", averageCommute: 40 },
-    { name: "Education", averageCommute: 20 },
-    { name: "Marketing", averageCommute: 30 },
-    { name: "Civil Engineering", averageCommute: 40 },
-    { name: "HR Management", averageCommute: 25 },
-    { name: "Accounting", averageCommute: 35 },
-    { name: "Psychology", averageCommute: 30 }
+    { name: "Computer Science", alphabeticalRank: 20, commonalityRank: 85 },
+    { name: "Nursing", alphabeticalRank: 65, commonalityRank: 90 },
+    { name: "Finance", alphabeticalRank: 35, commonalityRank: 78 },
+    { name: "Graphic Design", alphabeticalRank: 42, commonalityRank: 60 },
+    { name: "Education", alphabeticalRank: 27, commonalityRank: 83 },
+    { name: "Marketing", alphabeticalRank: 58, commonalityRank: 74 },
+    { name: "Civil Engineering", alphabeticalRank: 15, commonalityRank: 68 },
+    { name: "HR Management", alphabeticalRank: 45, commonalityRank: 65 },
+    { name: "Accounting", alphabeticalRank: 3, commonalityRank: 80 },
+    { name: "Psychology", alphabeticalRank: 70, commonalityRank: 92 }
   ]
 };
 
@@ -49,11 +49,9 @@ const sectors = {
   "Government & Public Service": [] // No matching occupations in current data
 };
 
-// Blue color scale for commute times
-const commuteColors = ['#cce5ff', '#99ccff', '#66b3ff', '#3399ff', '#0073e6'];
-
-function CommutingTimesExplorer() {
+function AlphabeticalVisualization() {
   const [dataType, setDataType] = useState('occupations');
+  const [rankType, setRankType] = useState('alphabetical');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('default');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -61,39 +59,50 @@ function CommutingTimesExplorer() {
   const [comparedItems, setComparedItems] = useState([]);
   const [fieldFilter, setFieldFilter] = useState('all'); // For majors
   const [sectorFilter, setSectorFilter] = useState('all'); // For occupations
+  
+  // Colors for the bars
+  const alphabeticalColors = ['#cce5ff', '#99caff', '#66b0ff', '#3395ff', '#007bff'];
+  const commonalityColors = ['#ffcccc', '#ffb3b3', '#ff9999', '#ff8080', '#ff6666'];
 
-  // Function to choose a color based on average commute value (minutes)
-  const getColor = (value) => {
-    if (value < 20) return commuteColors[0];
-    if (value < 30) return commuteColors[1];
-    if (value < 40) return commuteColors[2];
-    if (value < 50) return commuteColors[3];
-    return commuteColors[4];
+  // Updated getColor function to accept a type parameter
+  const getColor = (value, type = rankType) => {
+    const colors = type === 'alphabetical' ? alphabeticalColors : commonalityColors;
+    if (value < 20) return colors[0];
+    if (value < 40) return colors[1];
+    if (value < 60) return colors[2];
+    if (value < 80) return colors[3];
+    return colors[4];
   };
 
   // Filter and sort data
   let data = [...mockData[dataType]];
 
-  // Apply filtering based on data type
+  // Apply filter based on data type
   if (dataType === 'majors' && fieldFilter !== 'all') {
     data = data.filter(item => fieldsOfStudy[fieldFilter].includes(item.name));
   }
   if (dataType === 'occupations' && sectorFilter !== 'all') {
     data = data.filter(item => sectors[sectorFilter].includes(item.name));
   }
-
+  
   // Apply search filter
   if (searchTerm) {
     data = data.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }
-
+  
   // Apply sorting
   if (sortOrder === 'alphabetical') {
     data.sort((a, b) => a.name.localeCompare(b.name));
   } else if (sortOrder === 'lowest') {
-    data.sort((a, b) => a.averageCommute - b.averageCommute);
+    data.sort((a, b) =>
+      a[rankType === 'alphabetical' ? 'alphabeticalRank' : 'commonalityRank'] -
+      b[rankType === 'alphabetical' ? 'alphabeticalRank' : 'commonalityRank']
+    );
   } else if (sortOrder === 'highest') {
-    data.sort((a, b) => b.averageCommute - a.averageCommute);
+    data.sort((a, b) =>
+      b[rankType === 'alphabetical' ? 'alphabeticalRank' : 'commonalityRank'] -
+      a[rankType === 'alphabetical' ? 'alphabeticalRank' : 'commonalityRank']
+    );
   }
 
   // Handle item selection
@@ -109,15 +118,16 @@ function CommutingTimesExplorer() {
     }
   };
 
-  // Clear selections and filters when switching data types
+  // Clear selections when switching data types
   useEffect(() => {
     setComparedItems([]);
     setSelectedItem(null);
+    // Reset filters when data type changes
     setFieldFilter('all');
     setSectorFilter('all');
   }, [dataType]);
 
-  // Get related occupations for a major (kept as before)
+  // Get related occupations for a major
   const getRelatedOccupations = (majorName) => {
     const mapping = {
       "Computer Science": ["Software Developer"],
@@ -131,7 +141,7 @@ function CommutingTimesExplorer() {
       "Accounting": ["Accountant"],
       "Psychology": ["HR Specialist"]
     };
-
+    
     return mockData.occupations.filter(occ => mapping[majorName] && mapping[majorName].includes(occ.name));
   };
 
@@ -151,17 +161,15 @@ function CommutingTimesExplorer() {
         textAlign: 'center',
         marginBottom: '20px',
         color: '#333'
-      }}>
-        Commuting Times Explorer
-      </h1>
+      }}>Career Nomenclature Explorer</h1>
       <p style={{
         textAlign: 'center',
         marginBottom: '30px',
         color: '#666'
       }}>
-        Explore the average commuting times for different {dataType}
+        Explore how different {dataType} rank in alphabetical order and relative commonality
       </p>
-
+      
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -184,7 +192,7 @@ function CommutingTimesExplorer() {
           }}>
             View By
           </label>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{display: 'flex', gap: '10px'}}>
             <button
               onClick={() => setDataType('occupations')}
               style={{
@@ -219,7 +227,59 @@ function CommutingTimesExplorer() {
             </button>
           </div>
         </div>
-
+        
+        {/* Ranking Type Section */}
+        <div style={{
+          backgroundColor: 'white',
+          padding: '15px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        }}>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            marginBottom: '10px',
+            color: '#444'
+          }}>
+            Ranking Type
+          </label>
+          <div style={{display: 'flex', gap: '10px'}}>
+            <button
+              onClick={() => setRankType('alphabetical')}
+              style={{
+                flex: 1,
+                padding: '10px',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: rankType === 'alphabetical' ? '#007bff' : '#e5e7eb',
+                color: rankType === 'alphabetical' ? 'white' : '#1f2937',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Alphabetical Rank
+            </button>
+            <button
+              onClick={() => setRankType('commonality')}
+              style={{
+                flex: 1,
+                padding: '10px',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: rankType === 'commonality' ? '#dc3545' : '#e5e7eb',
+                color: rankType === 'commonality' ? 'white' : '#1f2937',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Commonality Rank
+            </button>
+          </div>
+        </div>
+        
         {/* Sort By Section */}
         <div style={{
           backgroundColor: 'white',
@@ -250,11 +310,11 @@ function CommutingTimesExplorer() {
           >
             <option value="default">Default Order</option>
             <option value="alphabetical">Alphabetical (A-Z)</option>
-            <option value="lowest">Lowest Commute First</option>
-            <option value="highest">Highest Commute First</option>
+            <option value="lowest">Lowest Rank First</option>
+            <option value="highest">Highest Rank First</option>
           </select>
         </div>
-
+        
         {/* Search Section */}
         <div style={{
           backgroundColor: 'white',
@@ -271,7 +331,7 @@ function CommutingTimesExplorer() {
           }}>
             Search
           </label>
-          <div style={{ position: 'relative' }}>
+          <div style={{position: 'relative'}}>
             <input
               type="text"
               value={searchTerm}
@@ -299,7 +359,7 @@ function CommutingTimesExplorer() {
           </div>
         </div>
       </div>
-
+      
       {/* Filter Section */}
       {dataType === 'majors' && (
         <div style={{
@@ -318,7 +378,7 @@ function CommutingTimesExplorer() {
           }}>
             Filter by Field of Study
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: '10px'}}>
             <button
               onClick={() => setFieldFilter('all')}
               style={{
@@ -372,7 +432,7 @@ function CommutingTimesExplorer() {
           }}>
             Filter by Sector/Industry
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: '10px'}}>
             <button
               onClick={() => setSectorFilter('all')}
               style={{
@@ -409,7 +469,7 @@ function CommutingTimesExplorer() {
           </div>
         </div>
       )}
-
+      
       {/* Comparison toggle */}
       <div style={{
         marginBottom: '20px',
@@ -417,11 +477,15 @@ function CommutingTimesExplorer() {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <label style={{ fontSize: '14px', fontWeight: '500', color: '#444' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <label style={{fontSize: '14px', fontWeight: '500', color: '#444'}}>
             Compare Mode
           </label>
-          <div
+          <div 
             style={{
               width: '44px',
               height: '24px',
@@ -438,7 +502,7 @@ function CommutingTimesExplorer() {
               setSelectedItem(null);
             }}
           >
-            <div
+            <div 
               style={{
                 width: '18px',
                 height: '18px',
@@ -452,13 +516,14 @@ function CommutingTimesExplorer() {
             />
           </div>
         </div>
+        
         {compareMode && (
-          <div style={{ fontSize: '14px', color: '#666' }}>
-            Select up to 3 items to compare ({comparedItems.length}/3)
+          <div style={{fontSize: '14px', color: '#666'}}>
+            Select up to 2 groups to compare ({comparedItems.length}/2)
           </div>
         )}
       </div>
-
+      
       {/* Main visualization */}
       <div style={{
         backgroundColor: 'white',
@@ -469,9 +534,7 @@ function CommutingTimesExplorer() {
       }}>
         {compareMode && comparedItems.length > 1 ? (
           <div>
-            <h3 style={{ marginBottom: '15px', fontWeight: 'bold', color: '#333' }}>
-              Comparison View
-            </h3>
+            <h3 style={{marginBottom: '15px', fontWeight: 'bold', color: '#333'}}>Comparison View</h3>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'auto 1fr',
@@ -490,18 +553,15 @@ function CommutingTimesExplorer() {
                   <div key={idx}>{item.name}</div>
                 ))}
               </div>
-
-              {/* Single row: Average Commute */}
-              <div style={{ fontWeight: '500', color: '#374151' }}>
-                Average Commute (min)
-              </div>
+              
+              <div style={{fontWeight: '500', color: '#007bff'}}>Alphabetical Rank</div>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: `repeat(${comparedItems.length}, 1fr)`,
                 gap: '10px'
               }}>
                 {comparedItems.map((item, idx) => (
-                  <div
+                  <div 
                     key={idx}
                     style={{
                       height: '30px',
@@ -513,21 +573,55 @@ function CommutingTimesExplorer() {
                     <div
                       style={{
                         height: '100%',
-                        width: `${item.averageCommute * 2}%`, // scale factor for visualization
-                        backgroundColor: getColor(item.averageCommute),
+                        width: `${item.alphabeticalRank}%`,
+                        backgroundColor: getColor(item.alphabeticalRank, 'alphabetical'),
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: item.averageCommute > 30 ? 'white' : 'black',
+                        color: item.alphabeticalRank > 50 ? 'white' : 'black',
                         fontWeight: '500'
                       }}
                     >
-                      {item.averageCommute} min
+                      {item.alphabeticalRank}%
                     </div>
                   </div>
                 ))}
               </div>
-
+              
+              <div style={{fontWeight: '500', color: '#dc3545', marginTop: '10px'}}>Commonality Rank</div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${comparedItems.length}, 1fr)`,
+                gap: '10px'
+              }}>
+                {comparedItems.map((item, idx) => (
+                  <div 
+                    key={idx}
+                    style={{
+                      height: '30px',
+                      backgroundColor: '#f3f4f6',
+                      borderRadius: '4px',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${item.commonalityRank}%`,
+                        backgroundColor: getColor(item.commonalityRank, 'commonality'),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: item.commonalityRank > 50 ? 'white' : 'black',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {item.commonalityRank}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
               <div></div>
               <div style={{
                 display: 'grid',
@@ -543,8 +637,8 @@ function CommutingTimesExplorer() {
                       padding: '5px',
                       borderRadius: '4px',
                       border: 'none',
-                      backgroundColor: '#fee2e2',
-                      color: '#b91c1c',
+                      backgroundColor: '#f8d7da',
+                      color: '#721c24',
                       cursor: 'pointer',
                       fontSize: '12px'
                     }}
@@ -556,17 +650,22 @@ function CommutingTimesExplorer() {
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+          }}>
             {data.map((item, index) => {
-              const value = item.averageCommute;
+              const value = rankType === 'alphabetical' ? item.alphabeticalRank : item.commonalityRank;
               const isSelected = selectedItem?.name === item.name || comparedItems.find(i => i.name === item.name);
+              
               return (
-                <div
-                  key={index}
+                <div 
+                  key={index} 
                   onClick={() => handleItemClick(item)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
                     gap: '10px',
                     padding: '8px',
                     borderRadius: '6px',
@@ -576,42 +675,43 @@ function CommutingTimesExplorer() {
                     backgroundColor: isSelected ? '#f0f9ff' : 'transparent'
                   }}
                 >
-                  <div style={{
-                    width: '150px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
+                  <div style={{ 
+                    width: '150px', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
                     whiteSpace: 'nowrap',
                     fontWeight: isSelected ? '600' : 'normal',
                     fontSize: '15px'
                   }}>
                     {item.name}
                   </div>
-                  <div style={{
-                    flex: 1,
-                    height: '28px',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '6px',
+                  <div style={{ 
+                    flex: 1, 
+                    height: '28px', 
+                    backgroundColor: '#f3f4f6', 
+                    borderRadius: '6px', 
                     overflow: 'hidden',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.05) inset'
                   }}>
                     <div
                       style={{
                         height: '100%',
-                        width: `${value * 2}%`,
+                        width: `${value}%`,
                         backgroundColor: getColor(value),
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
                         paddingRight: '10px',
-                        color: value > 30 ? 'white' : 'black',
+                        color: value > 50 ? 'white' : 'black',
                         fontWeight: '500',
                         fontSize: '14px',
                         transition: 'width 0.5s ease-out'
                       }}
                     >
-                      {value} min
+                      {value}%
                     </div>
                   </div>
+                  
                   {compareMode && (
                     <div style={{
                       width: '24px',
@@ -634,7 +734,7 @@ function CommutingTimesExplorer() {
           </div>
         )}
       </div>
-
+      
       {/* Detail view when an item is selected */}
       {selectedItem && !compareMode && (
         <div style={{
@@ -644,41 +744,64 @@ function CommutingTimesExplorer() {
           boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
           marginBottom: '20px'
         }}>
-          <h3 style={{ marginBottom: '15px', fontWeight: 'bold', color: '#333' }}>
+          <h3 style={{marginBottom: '15px', fontWeight: 'bold', color: '#333'}}>
             {selectedItem.name} Details
           </h3>
+          
           <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '20px',
             marginBottom: '20px'
           }}>
-            <div style={{ marginBottom: '10px', fontWeight: '500', color: '#374151' }}>
-              Average Commute (min)
+            <div>
+              <div style={{marginBottom: '10px', fontWeight: '500', color: '#007bff'}}>
+                Alphabetical Rank
+              </div>
+              <div style={{height: '28px', backgroundColor: '#f3f4f6', borderRadius: '6px', overflow: 'hidden'}}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${selectedItem.alphabeticalRank}%`,
+                    backgroundColor: getColor(selectedItem.alphabeticalRank, 'alphabetical'),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: selectedItem.alphabeticalRank > 50 ? 'white' : 'black',
+                    fontWeight: '500'
+                  }}
+                >
+                  {selectedItem.alphabeticalRank}%
+                </div>
+              </div>
             </div>
-            <div style={{
-              height: '28px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '6px',
-              overflow: 'hidden'
-            }}>
-              <div
-                style={{
-                  height: '100%',
-                  width: `${selectedItem.averageCommute * 2}%`,
-                  backgroundColor: getColor(selectedItem.averageCommute),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: selectedItem.averageCommute > 30 ? 'white' : 'black',
-                  fontWeight: '500'
-                }}
-              >
-                {selectedItem.averageCommute} min
+            
+            <div>
+              <div style={{marginBottom: '10px', fontWeight: '500', color: '#dc3545'}}>
+                Commonality Rank
+              </div>
+              <div style={{height: '28px', backgroundColor: '#f3f4f6', borderRadius: '6px', overflow: 'hidden'}}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${selectedItem.commonalityRank}%`,
+                    backgroundColor: getColor(selectedItem.commonalityRank, 'commonality'),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: selectedItem.commonalityRank > 50 ? 'white' : 'black',
+                    fontWeight: '500'
+                  }}
+                >
+                  {selectedItem.commonalityRank}%
+                </div>
               </div>
             </div>
           </div>
-
+          
           {dataType === 'majors' && (
             <div>
-              <h4 style={{ marginBottom: '10px', fontWeight: 'bold', color: '#555' }}>
+              <h4 style={{marginBottom: '10px', fontWeight: 'bold', color: '#555'}}>
                 Related Occupations
               </h4>
               <div style={{
@@ -695,9 +818,12 @@ function CommutingTimesExplorer() {
                     borderRadius: '6px'
                   }}>
                     <div>{occ.name}</div>
-                    <div style={{ display: 'flex', gap: '15px' }}>
-                      <span style={{ color: '#374151' }}>
-                        Commute: {occ.averageCommute} min
+                    <div style={{display: 'flex', gap: '15px'}}>
+                      <span style={{color: '#007bff'}}>
+                        Alpha: {occ.alphabeticalRank}%
+                      </span>
+                      <span style={{color: '#dc3545'}}>
+                        Common: {occ.commonalityRank}%
                       </span>
                     </div>
                   </div>
@@ -705,7 +831,7 @@ function CommutingTimesExplorer() {
               </div>
             </div>
           )}
-
+          
           <div style={{
             marginTop: '20px',
             padding: '15px',
@@ -713,21 +839,33 @@ function CommutingTimesExplorer() {
             borderRadius: '6px',
             border: '1px solid #bfdbfe'
           }}>
-            <h4 style={{ marginBottom: '10px', fontWeight: 'bold', color: '#1e40af' }}>
-              Commute Analysis
+            <h4 style={{marginBottom: '10px', fontWeight: 'bold', color: '#1e40af'}}>
+              Nomenclature Analysis
             </h4>
-            <p style={{ marginBottom: '10px', lineHeight: '1.5', color: '#334155' }}>
-              An average commute of {selectedItem.averageCommute} minutes suggests that individuals in this field typically spend this amount of time traveling to work.
+            <p style={{marginBottom: '10px', lineHeight: '1.5', color: '#334155'}}>
+              {selectedItem.alphabeticalRank > 60 ? 
+                `${selectedItem.name} has a high alphabetical rank (${selectedItem.alphabeticalRank}%), appearing later in alphabetical listings than many other ${dataType}.` :
+                selectedItem.alphabeticalRank > 30 ?
+                  `${selectedItem.name} has a moderate alphabetical rank (${selectedItem.alphabeticalRank}%), appearing in the middle range of alphabetical listings of ${dataType}.` :
+                  `${selectedItem.name} has a low alphabetical rank (${selectedItem.alphabeticalRank}%), appearing earlier in alphabetical listings than most other ${dataType}.`
+              }
+              
+              {selectedItem.commonalityRank > 75 ? 
+                ` It also has a high commonality score (${selectedItem.commonalityRank}%), indicating that this is a widely recognized term among the general population.` :
+                selectedItem.commonalityRank > 50 ?
+                  ` It has a moderate commonality score (${selectedItem.commonalityRank}%), indicating general recognition among the population.` :
+                  ` It has a relatively low commonality score (${selectedItem.commonalityRank}%), suggesting this term may be less widely recognized by the general population.`
+              }
             </p>
-            <p style={{ lineHeight: '1.5', color: '#334155' }}>
-              {dataType === 'majors'
-                ? `Students pursuing ${selectedItem.name} might consider the location of educational institutions and local job markets when evaluating career paths.`
-                : `Professionals in ${selectedItem.name} should factor in commuting times when considering job opportunities and work-life balance.`}
+            <p style={{lineHeight: '1.5', color: '#334155'}}>
+              {dataType === 'majors' ? 
+                `When students search for information about ${selectedItem.name}, the alphabetical position may affect visibility in directory listings, course catalogs, and academic resources.` :
+                `In job searches and career resources, the name "${selectedItem.name}" may appear ${selectedItem.alphabeticalRank < 40 ? 'earlier' : 'later'} in listings, which can potentially impact discovery and visibility.`}
             </p>
           </div>
         </div>
       )}
-
+      
       <div style={{
         padding: '20px',
         backgroundColor: '#f8fafc',
@@ -735,26 +873,29 @@ function CommutingTimesExplorer() {
         border: '1px solid #e2e8f0',
         marginTop: '20px'
       }}>
-        <h3 style={{ fontWeight: 'bold', marginBottom: '15px', color: '#475569' }}>About This Visualization</h3>
-        <div style={{ marginBottom: '15px' }}>
-          <h4 style={{ fontWeight: '600', fontSize: '16px', marginBottom: '8px', color: '#334155' }}>What This Shows</h4>
-          <p style={{ marginBottom: '10px', lineHeight: '1.6', color: '#475569' }}>
-            This tool visualizes the average commuting times (in minutes) for careers and educational fields:
+        <h3 style={{fontWeight: 'bold', marginBottom: '15px', color: '#475569'}}>About This Visualization</h3>
+        
+        <div style={{marginBottom: '15px'}}>
+          <h4 style={{fontWeight: '600', fontSize: '16px', marginBottom: '8px', color: '#334155'}}>What This Shows</h4>
+          <p style={{marginBottom: '10px', lineHeight: '1.6', color: '#475569'}}>
+            This tool visualizes two dimensions of career and educational nomenclature:
           </p>
-          <ul style={{ paddingLeft: '20px', marginBottom: '10px', lineHeight: '1.6', color: '#475569' }}>
-            <li><strong>Average Commute:</strong> The typical time individuals spend traveling to work or school.</li>
+          <ul style={{paddingLeft: '20px', marginBottom: '10px', lineHeight: '1.6', color: '#475569'}}>
+            <li><span style={{fontWeight: '600', color: '#007bff'}}>Alphabetical Rank:</span> An index representing where the name appears in alphabetical listings relative to other options in the same category.</li>
+            <li><span style={{fontWeight: '600', color: '#dc3545'}}>Commonality Rank:</span> An index showing how frequently the name appears in general usage compared to alternatives.</li>
           </ul>
         </div>
+        
         <div>
-          <h4 style={{ fontWeight: '600', fontSize: '16px', marginBottom: '8px', color: '#334155' }}>How To Use This Tool</h4>
-          <ul style={{ paddingLeft: '20px', marginBottom: '10px', lineHeight: '1.6', color: '#475569' }}>
+          <h4 style={{fontWeight: '600', fontSize: '16px', marginBottom: '8px', color: '#334155'}}>How To Use This Tool</h4>
+          <ul style={{paddingLeft: '20px', marginBottom: '10px', lineHeight: '1.6', color: '#475569'}}>
             <li>Toggle between <strong>Occupations</strong> and <strong>College Majors</strong> to explore different perspectives</li>
-            <li>Use <strong>Compare Mode</strong> to directly compare up to 3 items side by side</li>
+            <li>Use <strong>Compare Mode</strong> to directly compare up to 2 items side by side</li>
             <li>Click on any item to view detailed information and analysis</li>
             <li>For college majors, explore related occupations to understand career path implications</li>
           </ul>
-          <p style={{ fontSize: '14px', color: '#64748b', marginTop: '15px', fontStyle: 'italic' }}>
-            Note: This visualization uses simulated data based on current estimates. Actual commuting times may vary.
+          <p style={{fontSize: '14px', color: '#64748b', marginTop: '15px', fontStyle: 'italic'}}>
+            Note: This visualization uses standardized rankings based on contemporary nomenclature patterns. Actual visibility and recognition may vary in different contexts.
           </p>
         </div>
       </div>
@@ -762,4 +903,4 @@ function CommutingTimesExplorer() {
   );
 }
 
-export default CommutingTimesExplorer;
+export default AlphabeticalVisualization;
